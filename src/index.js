@@ -1,43 +1,75 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
-<link
-	rel="stylesheet"
-	href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-	integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
-	crossorigin="anonymous"
-/>;
+import Form from 'react-bootstrap/Form';
+
 
 class App extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = { carnet: '', schedule: 'Lunes de 9:00 a 11:00', isLate: false };
-		this.changeHandler = this.changeHandler.bind(this);
+		this.state = {
+			registros: [],
+		};
 	}
 
-	changeHandler = (event) => {
-		const target = event.target;
-		const value = target.type === 'checkbox' ? target.checked : target.value;
-		const name = target.name;
+	addEvents = (value) => {
+		this.state.registros.push(value)
+		this.setState({ registros: this.state.registros })
+		console.log(this.state.registros)
+	}
 
-		this.setState({
-			[name]: value
-		});
-	};
+	updateRegistry = (value) => {
+		this.setState({ registros: value })
+	}
 
 	render() {
 		return (
-			<Form
-				carnet={this.state.carnet}
-				schedule={this.state.schedule}
-				isLate={this.state.isLate}
-				onChange={this.changeHandler}
-			/>
+			<div className="container">
+				<div className="jumbotron">
+					<Formu
+						addEvents={this.addEvents}
+					/>
+				</div>
+
+				<section>
+					<Table
+						registros={this.state.registros}
+						updateRegistry={this.updateRegistry}
+					/>
+				</section>
+			</div>
 		);
 	}
 }
 
-class Form extends React.Component {
+class Formu extends React.Component {
+
+	constructor(props) {
+		super(props);
+		this.state = {
+			carnet: '',
+			schedule: 'Lunes de 9:00 a 11:00',
+			isLate: false,
+			checked: false,
+		};
+	}
+
+	changeHandler = (evt) => {
+		// console.log(evt.target.value)
+		this.setState({ [evt.target.name]: evt.target.value })
+	}
+
+	changeCheckHandler = () => {
+		this.setState({ isLate: !this.state.isLate })
+	}
+
+	handleRegistry = () => {
+		var date = new Date();
+		var late = this.state.isLate ? "Tarde" : "A tiempo";
+
+		let registry = { carnet: this.state.carnet, schedule: this.state.schedule, late: late, date: date }
+		this.props.addEvents(registry)
+	}
 
 	render() {
 
@@ -53,14 +85,14 @@ class Form extends React.Component {
 						className="form-control"
 						type="text"
 						name="carnet"
-						onChange={this.props.changeHandler}
+						onChange={this.changeHandler}
 						maxLength="8"
 					/>
 				</div>
 
 				<div className="form-group">
 					<label htmlFor="schedule">Seleccione el horario:</label>
-					<select name="schedule" className="form-control" onChange={this.props.changeHandler}>
+					<select name="schedule" className="form-control" onChange={this.changeHandler} >
 						<option value="L">Lunes de 9:00 a 11.00</option>
 						<option value="Ma">Martes de 13:30 a 15:30</option>
 						<option value="Mi">Miércoles de 9:00 a 11.00</option>
@@ -71,26 +103,62 @@ class Form extends React.Component {
 				</div>
 
 				<div className="form-group">
-					<div className="custom-control custom-switch">
-						<input
-							type="checkbox"
-							name="isLate"
-							className="custom-control-input"
-							onChange={this.props.changeHandler}
-							
-						/>
-						<label className="custom-control-label" htmlFor="late_switch">
-							Llegó tarde?
-						</label>
-					</div>
+
+					<Form.Switch
+						type="switch"
+						id="custom-switch"
+						label="Llegó tarde?"
+						onChange={this.changeCheckHandler}
+					/>
+
 				</div>
 
 				<div className="form-group">
-					<button type="button" className="btn btn-danger" onClick={this.handleClick} disabled={this.props.carnet.value !== '[0-9]{8}'? true : false}>
+					<button type="button" className="btn btn-danger" onClick={this.handleRegistry} >
 						Ingresar
 					</button>
 				</div>
 			</div>
+		);
+	}
+}
+
+
+class Table extends React.Component {
+
+	handleDelete = (id) => {
+		let reg = this.props.registros;
+		reg.splice(id, 1)
+		this.props.updateRegistry(reg)
+	}
+
+	render() {
+		return (
+			<table className="table table-hover">
+				<thead>
+					<tr className="table-dark">
+						<th scope="col">Carnet</th>
+						<th scope="col">Horario de laboratorio</th>
+						<th scope="col">Hora de ingreso</th>
+						<th scope="col">Tarde?</th>
+						<th scope="col">Eliminar</th>
+					</tr>
+				</thead>
+				<tbody id="table_body">
+					{
+						this.props.registros.map(
+							(r, index) => (
+								<tr key={index} className="active">
+									<td><b>{r.carnet}</b></td>
+									<td>{r.schedule}</td>
+									<td>{r.date.toLocaleString()}</td>
+									<td>{r.late}</td>
+									<td><button className="btn btn-danger" onClick={() => this.handleDelete(index)}>Eliminar</button></td>
+								</tr>
+							)
+						)}
+				</tbody>
+			</table>
 		);
 	}
 }
