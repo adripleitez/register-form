@@ -61,9 +61,6 @@ class Formu extends React.Component {
 
 		let registry = { carnet: this.state.carnet, schedule: this.state.schedule, late: late, date: date };
 		this.props.addEvents(registry);
-
-		e.carnet.value = "";
-		window.render();
 	};
 
 	render() {
