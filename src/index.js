@@ -15,7 +15,6 @@ class App extends React.Component {
 	addEvents = (value) => {
 		this.state.registros.push(value);
 		this.setState({ registros: this.state.registros });
-		console.log(this.state.registros);
 	};
 
 	updateRegistry = (value) => {
@@ -26,7 +25,7 @@ class App extends React.Component {
 		return (
 			<div className="container">
 				<div className="jumbotron">
-					<Formu addEvents={this.addEvents} />
+					<Formu addEvents={this.addEvents}/>
 				</div>
 
 				<section>
@@ -40,7 +39,7 @@ class App extends React.Component {
 class Formu extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {
+		this.state={
 			carnet: '',
 			schedule: 'Lunes de 9:00 a 11:00',
 			isLate: false
@@ -55,12 +54,17 @@ class Formu extends React.Component {
 		this.setState({ isLate: !this.state.isLate });
 	};
 
+	clearForm = () => {
+		this.setState({ carnet: '',
+		schedule: 'Lunes de 9:00 a 11:00'});
+	}
+
 	handleRegistry = (e) => {
 		var date = new Date();
 		var late = this.state.isLate ? 'Tarde' : 'A tiempo';
-
-		let registry = { carnet: this.state.carnet, schedule: this.state.schedule, late: late, date: date };
+		let registry= { carnet: this.state.carnet, schedule: this.state.schedule, late: late, date: date };
 		this.props.addEvents(registry);
+		this.clearForm();
 	};
 
 	render() {
@@ -76,6 +80,7 @@ class Formu extends React.Component {
 						className="form-control"
 						type="text"
 						name="carnet"
+						value={this.state.carnet}
 						onChange={this.changeHandler}
 						maxLength="8"
 					/>
@@ -83,7 +88,7 @@ class Formu extends React.Component {
 
 				<div className="form-group">
 					<label htmlFor="schedule">Seleccione el horario:</label>
-					<select name="schedule" className="form-control" onChange={this.changeHandler}>
+					<select name="schedule" value={this.state.schedule} className="form-control" onChange={this.changeHandler}>
 						<option value="Lunes de 9:00 a 11:00">Lunes de 9:00 a 11:00</option>
 						<option value="Martes de 13:30 a 15:30">Martes de 13:30 a 15:30</option>
 						<option value="Miércoles de 9:00 a 11.00">Miércoles de 9:00 a 11.00</option>
